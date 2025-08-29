@@ -4,6 +4,7 @@ import type { Todolist } from "./todolistsApi.types"
 
 export const todolistsApi = {
   getTodolists() {
+    // 2
     return instance.get<Todolist[]>("/todo-lists")
   },
   changeTodolistTitle(payload: { id: string; title: string }) {

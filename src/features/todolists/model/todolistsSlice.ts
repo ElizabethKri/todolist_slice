@@ -1,12 +1,22 @@
 import { createSlice, current, nanoid } from "@reduxjs/toolkit"
+import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 
 
 // const initialState: Todolist[] = []
 
 export const todolistsSlice = createSlice({
   name: 'todolists',
-  initialState: [] as Todolist[],
+  initialState: [] as DomainTodolist[],
   reducers: (creators) => ({
+
+    // 5
+
+    fetchTodolistAC: creators.reducer<{todolists: Todolist[]}>((_state, action) =>{
+      return action.payload.todolists.map((todolist) => {
+        return {...todolist, filter: 'all'}
+      })
+    }),
+
     deleteTodolistAC: creators.reducer<{id: string}>((state, action) =>{
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
       if (index !== -1) {
@@ -29,12 +39,15 @@ export const todolistsSlice = createSlice({
     }),
 
     createTodolistAC: creators.preparedReducer((title: string) => {
+      const newTodolist: DomainTodolist = {
+        id: nanoid(),
+        title: title,
+        filter: 'all',
+        addedDate: '',
+        order: 1
+      }
       return {
-        payload: {
-          id: nanoid(),
-          title: title,
-          filter: 'all'
-        } as const
+        payload: newTodolist
       }
     }, (state, action) => {
       state.push(action.payload)
@@ -61,7 +74,7 @@ export const todolistsSlice = createSlice({
 })
 
 
-export const {deleteTodolistAC, changeTodolistFilterAC, changeTodolistTitleAC, createTodolistAC} = todolistsSlice.actions
+export const {deleteTodolistAC, changeTodolistFilterAC, changeTodolistTitleAC, createTodolistAC, fetchTodolistAC} = todolistsSlice.actions
 export const {selectTodolists} = todolistsSlice.selectors
 export const todolistsReducer = todolistsSlice.reducer
 
@@ -102,10 +115,8 @@ export const todolistsReducer = todolistsSlice.reducer
 //     })
 // })
 
-export type Todolist = {
-  id: string
-  title: string
-  filter: FilterValues
-}
+
+
+export type DomainTodolist = Todolist & {filter: FilterValues}
 
 export type FilterValues = "all" | "active" | "completed"
