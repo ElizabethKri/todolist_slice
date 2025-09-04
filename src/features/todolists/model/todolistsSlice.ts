@@ -1,17 +1,13 @@
-import { createAsyncThunk, createSlice, current, nanoid } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit"
 import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 
-
 // const initialState: Todolist[] = []
 
-
-
 export const todolistsSlice = createSlice({
-  name: 'todolists',
+  name: "todolists",
   initialState: [] as DomainTodolist[],
   reducers: (creators) => ({
-
     // 4
 
     // fetchTodolistAC: creators.reducer<{todolists: Todolist[]}>((_state, action) =>{
@@ -19,10 +15,11 @@ export const todolistsSlice = createSlice({
     //
     // }),
 
-    deleteTodolistAC: creators.reducer<{id: string}>((state, action) =>{
+    deleteTodolistAC: creators.reducer<{ id: string }>((state, action) => {
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
       if (index !== -1) {
-        state.splice(index, 1)}
+        state.splice(index, 1)
+      }
     }),
     // changeTodolistTitleAC: creators.reducer<{id: string, title: string}>((state, action) => {
     //   const index = state.findIndex((todolist) => todolist.id === action.payload.id)
@@ -30,32 +27,30 @@ export const todolistsSlice = createSlice({
     //     state[index].title = action.payload.title
     //   }
     // }),
-    changeTodolistFilterAC: creators.reducer<{id: string, filter: FilterValues}>((state, action) => {
+    changeTodolistFilterAC: creators.reducer<{ id: string; filter: FilterValues }>((state, action) => {
       debugger
       const a = current(state)
-      console.log (a)
+      console.log(a)
       const todolist = state.find((todolist) => todolist.id === action.payload.id)
       if (todolist) {
         todolist.filter = action.payload.filter
       }
     }),
 
-    createTodolistAC: creators.preparedReducer((title: string) => {
-      const newTodolist: DomainTodolist = {
-        id: nanoid(),
-        title: title,
-        filter: 'all',
-        addedDate: '',
-        order: 1
-      }
-      return {
-        payload: newTodolist
-      }
-    }, (state, action) => {
-      state.push(action.payload)
-    }),
-
-
+    // createTodolistAC: creators.preparedReducer((title: string) => {
+    //   const newTodolist: DomainTodolist = {
+    //     id: nanoid(),
+    //     title: title,
+    //     filter: 'all',
+    //     addedDate: '',
+    //     order: 1
+    //   }
+    //   return {
+    //     payload: newTodolist
+    //   }
+    // }, (state, action) => {
+    //   state.push(action.payload)
+    // }),
 
     // createTodolistAC: creators.reducer<{title: string, id: string}>((state, action) => {
     //   const newTodolist: Todolist = {
@@ -65,20 +60,17 @@ export const todolistsSlice = createSlice({
     //   }
     //   state.push(newTodolist)
     // })
-
-
   }),
 
   selectors: {
-    selectTodolists : state => state
+    selectTodolists: (state) => state,
   },
-
 
   extraReducers: (builder) => {
     builder
       .addCase(fetchtodolistsTC.fulfilled, (_state, action) => {
-      return action.payload.todolists.map((todolist) => ({...todolist, filter: 'all'}))
-    })
+        return action.payload.todolists.map((todolist) => ({ ...todolist, filter: "all" }))
+      })
       .addCase(changeTodolistTitleTC.fulfilled, (state, action) => {
         const index = state.findIndex((todolist) => todolist.id === action.payload.id)
         if (index !== -1) {
@@ -86,33 +78,30 @@ export const todolistsSlice = createSlice({
         }
       })
 
-
-      .addCase(fetchtodolistsTC.rejected, (_state, _action) => {
-
+      .addCase(createTodolistTC.fulfilled, (state, action) => {
+        state.unshift({ ...action.payload.todo, filter: "all" })
       })
-  }
 
+      .addCase(fetchtodolistsTC.rejected, (_state, _action) => {})
+  },
 })
 
-export const  fetchtodolistsTC = createAsyncThunk(`${todolistsSlice.name}/fetchtodolistsTC`,
-  async (_arg, thunkAPI) => {
+export const fetchtodolistsTC = createAsyncThunk(`${todolistsSlice.name}/fetchtodolistsTC`, async (_arg, thunkAPI) => {
+  const { rejectWithValue } = thunkAPI
 
-  const {rejectWithValue} =thunkAPI
-
-    try {
-      // async logic
-      const res = await todolistsApi.getTodolists()
-      return {todolists: res.data}
-    } catch (e) {
+  try {
+    // async logic
+    const res = await todolistsApi.getTodolists()
+    return { todolists: res.data }
+  } catch (e) {
     return rejectWithValue(e)
-    }
+  }
+})
 
-  })
-
-export const changeTodolistTitleTC = createAsyncThunk(`${todolistsSlice.name}/updateTodolistTitleTC`,
-  async(args : {id: string; title: string}, thunkAPI) => {
-
-    const {rejectWithValue} =thunkAPI
+export const changeTodolistTitleTC = createAsyncThunk(
+  `${todolistsSlice.name}/updateTodolistTitleTC`,
+  async (args: { id: string; title: string }, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
 
     try {
       // async logic
@@ -121,13 +110,30 @@ export const changeTodolistTitleTC = createAsyncThunk(`${todolistsSlice.name}/up
     } catch (e) {
       return rejectWithValue(e)
     }
-  })
+  },
+)
 
+export const createTodolistTC = createAsyncThunk(
+  `${todolistsSlice.name}/createTodolistTC`,
+  async (title: string, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
 
-export const {deleteTodolistAC, changeTodolistFilterAC,  createTodolistAC} = todolistsSlice.actions
-export const {selectTodolists} = todolistsSlice.selectors
+    try {
+      // async logic
+
+      const result = await todolistsApi.createTodolist(title)
+      console.log(result.data.data.item)
+
+      return { todo: result.data.data.item }
+    } catch (e) {
+      return rejectWithValue(e)
+    }
+  },
+)
+
+export const { deleteTodolistAC, changeTodolistFilterAC } = todolistsSlice.actions
+export const { selectTodolists } = todolistsSlice.selectors
 export const todolistsReducer = todolistsSlice.reducer
-
 
 // export const deleteTodolistAC = createAction<{ id: string }>("todolists/deleteTodolist")
 // export const createTodolistAC = createAction("todolists/createTodolist", (title: string) => {
@@ -137,8 +143,6 @@ export const todolistsReducer = todolistsSlice.reducer
 // export const changeTodolistFilterAC = createAction<{ id: string; filter: FilterValues }>(
 //   "todolists/changeTodolistFilter",
 // )
-
-
 
 // export const _todolistsReducer = createReducer(initialState, (builder) => {
 //   builder
@@ -165,8 +169,6 @@ export const todolistsReducer = todolistsSlice.reducer
 //     })
 // })
 
-
-
-export type DomainTodolist = Todolist & {filter: FilterValues}
+export type DomainTodolist = Todolist & { filter: FilterValues }
 
 export type FilterValues = "all" | "active" | "completed"
