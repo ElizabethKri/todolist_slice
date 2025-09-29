@@ -7,6 +7,7 @@ import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 export const todolistsSlice = createSlice({
   name: "todolists",
   initialState: [] as DomainTodolist[],
+
   reducers: (creators) => ({
     // 4
 

@@ -1,8 +1,9 @@
 import { useAppSelector } from "@/common/hooks"
-import { selectTasks } from "@/features/todolists/model/tasks-selectors"
-import type { DomainTodolist} from "@/features/todolists/model/todolistsSlice.ts"
+
+import type { DomainTodolist } from "@/features/todolists/model/todolistsSlice.ts"
 import { TaskItem } from "./TaskItem/TaskItem"
 import List from "@mui/material/List"
+import { selectTasks } from "@/features/todolists/model/tasksSlice.ts"
 
 type Props = {
   todolist: DomainTodolist
@@ -27,9 +28,7 @@ export const Tasks = ({ todolist }: Props) => {
       {filteredTasks?.length === 0 ? (
         <p>Тасок нет</p>
       ) : (
-        <List>
-          {filteredTasks?.map((task) => <TaskItem key={task.id} task={task} todolistId={id} />)}
-        </List>
+        <List>{filteredTasks?.map((task) => <TaskItem key={task.id} task={task} todolistId={id} />)}</List>
       )}
     </>
   )

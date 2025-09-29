@@ -32,6 +32,7 @@ export const tasksSlice = createSlice({
       }
     }),
   }),
+  selectors: {selectTasks: (state) => state},
 
   extraReducers: (builder) => {
     builder
@@ -46,6 +47,7 @@ export const tasksSlice = createSlice({
 
 export const { deleteTaskAC, createTaskAC, changeTaskStatusAC, changeTaskTitleAC } = tasksSlice.actions
 export const tasksReducer = tasksSlice.reducer
+export const { selectTasks } = tasksSlice.selectors
 
 // export const deleteTaskAC = createAction<{ todolistId: string; taskId: string }>("tasks/deleteTask")
 // export const createTaskAC = createAction<{ todolistId: string; title: string }>("tasks/createTask")
