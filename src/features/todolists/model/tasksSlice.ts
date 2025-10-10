@@ -1,10 +1,8 @@
-import { nanoid } from "@reduxjs/toolkit"
 import { createTodolistTC, deleteTodolistTC } from "./todolistsSlice.ts"
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
-import { TaskPriority, TaskStatus } from "@/common/enums"
-import { RootState } from "@/app/store.ts"
+import { TaskStatus } from "@/common/enums"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -65,12 +63,10 @@ export const tasksSlice = createAppSlice({
     ),
 
     createTaskTC: create.asyncThunk(
-      async (args: {todolistId: string, title: string}, thunkAPI) => {
+      async (args: { todolistId: string; title: string }, thunkAPI) => {
         try {
           const res = await tasksApi.createTask(args)
           return res.data.data.item
-
-
         } catch (error) {
           return thunkAPI.rejectWithValue(null)
         }
@@ -90,13 +86,12 @@ export const tasksSlice = createAppSlice({
           //   deadline: '',
           // }
           state[action.payload.todoListId].unshift(action.payload)
-
         },
       },
     ),
 
     deleteTaskTC: create.asyncThunk(
-      async (args: {todolistId: string, taskId: string}, thunkAPI) => {
+      async (args: { todolistId: string; taskId: string }, thunkAPI) => {
         try {
           await tasksApi.deleteTask(args)
           return args
@@ -116,46 +111,42 @@ export const tasksSlice = createAppSlice({
     ),
 
     changeTaskStatusTC: create.asyncThunk(
-      async (args: {todolistId: string; taskId: string; status: TaskStatus}, thunkAPI) => {
-
-        const {dispatch, rejectWithValue, getState} = thunkAPI
+      async (task: DomainTask, thunkAPI) => {
+        // const {dispatch, rejectWithValue, getState} = thunkAPI
 
         try {
-          const allTask = (getState() as RootState).tasks
-          const tasksForTodolist = allTask[args.todolistId]
-
-          const task = tasksForTodolist.find((task) => task.id === args.taskId)
-
-          if (!task) return thunkAPI.rejectWithValue(null)
+          // const allTask = (getState() as RootState).tasks
+          // const tasksForTodolist = allTask[args.todolistId]
+          //
+          // const task = tasksForTodolist.find((task) => task.id === args.taskId)
+          //
+          // if (!task) return thunkAPI.rejectWithValue(null)
 
           const model: UpdateTaskModel = {
-            status: args.status,
+            status: task.status,
             description: task.description,
             startDate: task.startDate,
             title: task.title,
             priority: task.priority,
-            deadline: task.deadline
+            deadline: task.deadline,
           }
 
-          const res = await tasksApi.updateTask({taskId: args.taskId, todolistId: args.todolistId, model})
-          return {task: res.data.data.item }
-
+          const res = await tasksApi.updateTask({ taskId: task.id, todolistId: task.todoListId, model })
+          return { task: res.data.data.item }
         } catch (error) {
           return thunkAPI.rejectWithValue(null)
         }
       },
       {
         fulfilled: (state, action) => {
-
           const resTask = action.payload.task
           const task = state[resTask.todoListId].find((task) => task.id === resTask.id)
-          if(task){
+          if (task) {
             task.status = resTask.status
           }
         },
       },
     ),
-
   }),
 
   selectors: { selectTasks: (state) => state },
@@ -171,7 +162,7 @@ export const tasksSlice = createAppSlice({
   },
 })
 
-export const { deleteTaskTC, changeTaskStatusTC, changeTaskTitleAC, fetchTaskTC, createTaskTC} = tasksSlice.actions
+export const { deleteTaskTC, changeTaskStatusTC, changeTaskTitleAC, fetchTaskTC, createTaskTC } = tasksSlice.actions
 export const tasksReducer = tasksSlice.reducer
 export const { selectTasks } = tasksSlice.selectors
 
