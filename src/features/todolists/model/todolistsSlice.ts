@@ -2,6 +2,7 @@ import { createAsyncThunk, current } from "@reduxjs/toolkit"
 import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import { createAppSlice } from "@/common/utils"
+import { changeAppStatusAC } from "@/app/app-slice.ts"
 
 // const initialState: Todolist[] = []
 
@@ -45,7 +46,10 @@ export const todolistsSlice = createAppSlice({
 
         try {
           // async logic
+          thunkAPI.dispatch(changeAppStatusAC({status: 'loading'}))
+          await new Promise ((resolve) => setTimeout(resolve, 1000))
           const res = await todolistsApi.getTodolists()
+          thunkAPI.dispatch(changeAppStatusAC({status: 'succeeded'}))
           return { todolists: res.data }
         } catch (e) {
           return rejectWithValue(e)

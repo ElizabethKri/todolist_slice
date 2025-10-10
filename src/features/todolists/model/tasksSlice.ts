@@ -3,6 +3,7 @@ import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 import { TaskStatus } from "@/common/enums"
+import { changeAppStatusAC } from "@/app/app-slice.ts"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -65,9 +66,12 @@ export const tasksSlice = createAppSlice({
     createTaskTC: create.asyncThunk(
       async (args: { todolistId: string; title: string }, thunkAPI) => {
         try {
+          thunkAPI.dispatch(changeAppStatusAC({status: 'loading'}))
           const res = await tasksApi.createTask(args)
+          thunkAPI.dispatch(changeAppStatusAC({status: 'succeeded'}))
           return res.data.data.item
         } catch (error) {
+          thunkAPI.dispatch(changeAppStatusAC({status: 'failed'}))
           return thunkAPI.rejectWithValue(null)
         }
       },
