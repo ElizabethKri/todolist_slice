@@ -173,7 +173,7 @@ export const todolistsSlice = createAppSlice({
   // })
 
   // .addCase(createTodolistTC.fulfilled, (state, action) => {
-  //   state.unshift({ ...action.payload.todo, filter: "all" })
+  //   state.unshift({ ...action.payload.todolist, filter: "all" })
   // })
 
   // .addCase(deleteTodolistTC.fulfilled, (state, action) => {
@@ -222,7 +222,7 @@ export const todolistsSlice = createAppSlice({
 //       const result = await todolistsApi.createTodolist(title)
 //       console.log(result.data.data.item)
 //
-//       return { todo: result.data.data.item }
+//       return { todolist: result.data.data.item }
 //     } catch (e) {
 //       return rejectWithValue(e)
 //     }
