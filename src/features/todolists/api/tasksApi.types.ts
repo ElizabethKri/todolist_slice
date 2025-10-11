@@ -13,7 +13,7 @@ export type DomainTask = {
   addedDate: string
 }
 
-
+export type UpdateTaskModel = Omit<DomainTask, "id" | "todoListId" | "order" | "addedDate">
 
 export type GetTasksResponse = {
   error: string | null
@@ -21,11 +21,11 @@ export type GetTasksResponse = {
   items: DomainTask[]
 }
 
-export type UpdateTaskModel = {
-  description: string
-  title: string
-  status: TaskStatus
-  priority: TaskPriority
-  startDate: string
-  deadline: string
-}
+// export type UpdateTaskModel = {
+//   description: string
+//   title: string
+//   status: TaskStatus
+//   priority: TaskPriority
+//   startDate: string
+//   deadline: string
+// }
