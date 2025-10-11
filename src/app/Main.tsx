@@ -3,7 +3,8 @@ import { CreateItemForm } from "@/common/components/CreateItemForm/CreateItemFor
 import { Todolists } from "@/features/todolists/ui/Todolists/Todolists"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid2"
-import { createTodolistTC } from "@/features/todolists/model/todolistsSlice.ts"
+import { createTodolistsTC } from "@/features/todolists/model/todolistsSlice.ts"
+
 
 export const Main = () => {
   const dispatch = useAppDispatch()
@@ -11,7 +12,7 @@ export const Main = () => {
   const createTodolist = (title: string) => {
     //dispatch(createTodolistAC({title, id: nanoid()}))
     // dispatch(createTodolistAC(title))
-    dispatch(createTodolistTC(title))
+    dispatch(createTodolistsTC(title))
   }
 
   return (

@@ -1,9 +1,9 @@
-import { createTodolistTC, deleteTodolistTC } from "./todolistsSlice.ts"
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 import { TaskStatus } from "@/common/enums"
 import { changeAppStatusAC } from "@/app/app-slice.ts"
+import { createTodolistsTC, deleteTodolistTC } from "@/features/todolists/model/todolistsSlice.ts"
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -157,8 +157,8 @@ export const tasksSlice = createAppSlice({
 
   extraReducers: (builder) => {
     builder
-      .addCase(createTodolistTC.fulfilled, (state, action) => {
-        state[action.payload.todo.id] = []
+      .addCase(createTodolistsTC.fulfilled, (state, action) => {
+        state[action.payload.id] = []
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
         delete state[action.payload.id]
