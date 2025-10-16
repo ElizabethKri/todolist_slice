@@ -1,8 +1,8 @@
 import { createAppSlice } from "@/common/utils"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
-import { TaskStatus } from "@/common/enums"
-import { changeAppStatusAC } from "@/app/app-slice.ts"
+import { ResultCode, TaskStatus } from "@/common/enums"
+import { changeAppStatusAC, setErrorAC } from "@/app/app-slice.ts"
 import { createTodolistsTC, deleteTodolistTC } from "@/features/todolists/model/todolistsSlice.ts"
 
 export const tasksSlice = createAppSlice({
@@ -70,8 +70,16 @@ export const tasksSlice = createAppSlice({
         try {
           thunkAPI.dispatch(changeAppStatusAC({status: 'loading'}))
           const res = await tasksApi.createTask(args)
-          thunkAPI.dispatch(changeAppStatusAC({status: 'succeeded'}))
-          return res.data.data.item
+          if (res.data.resultCode === ResultCode.Success){
+            thunkAPI.dispatch(changeAppStatusAC({status: 'succeeded'}))
+            return res.data.data.item
+          }
+          else {
+            thunkAPI.dispatch(changeAppStatusAC({status: 'failed'}))
+            const error = res.data.messages.length ? res.data.messages[0] : 'Something went wrong'
+            thunkAPI.dispatch(setErrorAC({error}))
+            return thunkAPI.rejectWithValue(null)
+          }
         } catch (error) {
           thunkAPI.dispatch(changeAppStatusAC({status: 'failed'}))
           return thunkAPI.rejectWithValue(null)
