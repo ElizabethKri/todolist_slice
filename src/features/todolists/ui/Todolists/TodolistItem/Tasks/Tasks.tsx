@@ -9,9 +9,10 @@ import { TaskStatus } from "@/common/enums"
 
 type Props = {
   todolist: DomainTodolist
+  disabled: boolean
 }
 
-export const Tasks = ({ todolist }: Props) => {
+export const Tasks = ({ todolist, disabled }: Props) => {
   const { id, filter } = todolist
 
   const tasks = useAppSelector(selectTasks)
@@ -35,7 +36,7 @@ export const Tasks = ({ todolist }: Props) => {
       {filteredTasks?.length === 0 ? (
         <p>Тасок нет</p>
       ) : (
-        <List>{filteredTasks?.map((task) => <TaskItem key={task.id} task={task} todolistId={id} />)}</List>
+        <List>{filteredTasks?.map((task) => <TaskItem key={task.id} task={task} todolistId={id} disabled={disabled} todolist={todolist} />)}</List>
       )}
     </>
   )

@@ -1,11 +1,6 @@
 import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import { useAppDispatch } from "@/common/hooks"
-import {
-  changeTaskStatusTC,
-  changeTaskTitleAC,
-  deleteTaskTC,
-  updateTaskTC
-} from "@/features/todolists/model/tasksSlice.ts"
+import { deleteTaskTC, updateTaskTC } from "@/features/todolists/model/tasksSlice.ts"
 import DeleteIcon from "@mui/icons-material/Delete"
 import Checkbox from "@mui/material/Checkbox"
 import IconButton from "@mui/material/IconButton"
@@ -14,13 +9,16 @@ import type { ChangeEvent } from "react"
 import { getListItemSx } from "./TaskItem.styles"
 import { TaskStatus } from "@/common/enums"
 import { DomainTask } from "@/features/todolists/api/tasksApi.types.ts"
+import { DomainTodolist } from "@/features/todolists/model/todolistsSlice.ts"
 
 type Props = {
+  todolist: DomainTodolist
   task: DomainTask
   todolistId: string
+  disabled: boolean
 }
 
-export const TaskItem = ({ task, todolistId }: Props) => {
+export const TaskItem = ({ task, todolistId, todolist, disabled }: Props) => {
   const dispatch = useAppDispatch()
 
   const deleteTask = () => {
@@ -28,9 +26,10 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   }
 
   const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return
     const newStatusValue = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New
     console.log(newStatusValue, e.currentTarget.checked)
-    const newTask = {...task, status: newStatusValue}
+    const newTask = { ...task, status: newStatusValue }
     console.log(newTask)
 
     dispatch(updateTaskTC(newTask))
@@ -38,7 +37,8 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   }
 
   const changeTaskTitle = (title: string) => {
-    const newTask = {...task, title}
+    if (disabled) return
+    const newTask = { ...task, title }
     dispatch(updateTaskTC(newTask))
   }
 
@@ -47,10 +47,10 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   return (
     <ListItem sx={getListItemSx(checked)}>
       <div>
-        <Checkbox checked={checked} onChange={changeTaskStatus} />
-        <EditableSpan value={task.title} onChange={changeTaskTitle} />
+        <Checkbox checked={checked} onChange={changeTaskStatus} disabled={todolist.entityStatus === 'loading'}/>
+        <EditableSpan value={task.title} onChange={changeTaskTitle} disabled={todolist.entityStatus === 'loading'} />
       </div>
-      <IconButton onClick={deleteTask}>
+      <IconButton onClick={deleteTask} disabled={todolist.entityStatus === 'loading'}>
         <DeleteIcon />
       </IconButton>
     </ListItem>
