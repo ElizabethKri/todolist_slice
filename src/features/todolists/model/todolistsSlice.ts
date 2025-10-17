@@ -113,15 +113,22 @@ export const todolistsSlice = createAppSlice({
           // async logic
           dispatch(changeAppStatusAC({ status: "loading" }))
           dispatch(changeTodolistEntityStatusAC({ entityStatus: "loading", id }))
-          await todolistsApi.deleteTodolist(id)
-          dispatch(changeAppStatusAC({ status: "succeeded" }))
-          return { id }
+          const res = await todolistsApi.deleteTodolist(id)
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(changeAppStatusAC({ status: "succeeded" }))
+            return { id }
+          } else {
+            handleAppErrors(res.data, dispatch)
+            return rejectWithValue(null)
+          }
+
         } catch (e) {
           dispatch(changeTodolistEntityStatusAC({ entityStatus: "idle", id }))
           dispatch(changeAppStatusAC({ status: "failed" }))
           return rejectWithValue(e)
         }
       },
+
       {
         fulfilled: (state, action) => {
           return state.filter((el) => el.id !== action.payload.id)
@@ -131,16 +138,23 @@ export const todolistsSlice = createAppSlice({
 
     changeTodolistTitleTC: create.asyncThunk(
       async (args: { id: string; title: string }, thunkAPI) => {
-        const { rejectWithValue } = thunkAPI
+        const { rejectWithValue, dispatch } = thunkAPI
 
         try {
+
           // async logic
           thunkAPI.dispatch(changeAppStatusAC({ status: "loading" }))
-          await todolistsApi.changeTodolistTitle(args)
-          thunkAPI.dispatch(changeAppStatusAC({ status: "succeeded" }))
-          return args
-        } catch (e) {
-          return rejectWithValue(e)
+          const res = await todolistsApi.changeTodolistTitle(args)
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(changeAppStatusAC({ status: "succeeded" }))
+            return args
+          } else {
+            handleAppErrors(res.data, dispatch)
+            return rejectWithValue(null)
+          }
+        } catch (error) {
+          handleCatchError(error, dispatch)
+          return rejectWithValue(null)
         }
       },
       {
